@@ -35,7 +35,23 @@ function processTree ($node) {
             }
             elseif ($currnode.Name -eq 'integer') {
                 # must be an integer type value element, return its value
-                (processTree $currnode.FirstChild) -as [int64]
+                (processTree $currnode.FirstChild) | ForEach-Object {
+                    # try to determine what size of interger to return this value as 
+                    if ([int]::TryParse( $_, [ref] $null)) {
+                        # a 32bit integer seems to work
+                        $_ -as [int]
+                    }
+                    else {
+                        if ([int64]::TryParse( $_, [ref] $null)) {
+                            # a 64bit integer seems to be needed
+                            $_ -as [int64]
+                        }
+                        else {
+                            # try an unsigned 64bit interger, the largest available here.
+                            $_ -as [uint64]
+                        }
+                    }
+                }
             }
             elseif ($currnode.Name -eq 'real') {
                 # must be a floating type value element, return its value
@@ -70,7 +86,9 @@ function processTree ($node) {
         $currnode = $currnode.NextSibling # move forward to next node.
     } until ($null -eq $currnode) # until no more nodes are left in this set
     # if we built a collection of keys, we need to return the collection, count of object properties doesn't exist until a property is added.
-    if ($collection.PSObject.Properties.count) {$collection}
+    if ($collection.PSObject.Properties.count) {
+        $collection
+    }
 }
 
 # process the 'plist' item of the input XML object
