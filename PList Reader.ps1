@@ -25,21 +25,25 @@ function processTree ($node) {
                 $collection | Add-member -MemberType NoteProperty -name (processTree $currnode.FirstChild) -value (processTree $currnode.NextSibling.CloneNode($TRUE))
                 $currnode = $currnode.NextSibling # skip the next sibling because it was the value of the property
             }
-            elseif ($currnode.Name -in 'string', 'array', 'dict') {
-                # for string, array, or dict; return the value, with possible recursion and collection
+            elseif ($currnode.Name -in 'string', 'dict') {
+                # for string, or dict; return the value, with possible recursion and collection
                 processTree $currnode.FirstChild
+            }
+            elseif ($currnode.Name -in 'array' ) {
+                # for arrays, recurse the tree, and always return the array 
+                (, @(processTree $currnode.FirstChild))
             }
             elseif ($currnode.Name -eq 'integer') {
                 # must be an integer type value element, return its value
-                processTree $currnode.FirstChild -as [int64]
+                (processTree $currnode.FirstChild) -as [int64]
             }
             elseif ($currnode.Name -eq 'real') {
                 # must be a floating type value element, return its value
-                processTree $currnode.FirstChild -as [double]
+                (processTree $currnode.FirstChild) -as [double]
             }
             elseif ($currnode.Name -eq 'date') {
                 # must be a date-time type value element, return its value
-                processTree $currnode.FirstChild -as [datetime]
+                (processTree $currnode.FirstChild) -as [datetime]
             }
             elseif ($currnode.Name -eq 'data') {
                 # must be a data block value element, return its value as [byte[]]
