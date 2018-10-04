@@ -22,7 +22,7 @@ function processTree ($node) {
         if ($currnode.HasChildNodes) {
             if ($currnode.Name -eq 'key') {
                 # a key in a dictionary, or a single property, either way, add it to a collection
-                $collection | Add-member -MemberType NoteProperty -name (processTree $currnode.FirstChild) -value (processTree $currnode.NextSibling.CloneNode($TRUE))
+                $collection | Add-member -MemberType NoteProperty -name (processTree $currnode.FirstChild) -value (processTree $currnode.NextSibling.CloneNode($true))
                 $currnode = $currnode.NextSibling # skip the next sibling because it was the value of the property
             }
             elseif ($currnode.Name -in 'string', 'dict') {
