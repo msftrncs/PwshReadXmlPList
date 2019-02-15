@@ -7,7 +7,8 @@ Within it is a fairly complete XML PList reading function.  The XML PList is a p
 The script presently accepts input of an XML object which it can accept from the pipeline.  Use the [xml] shortcut to read the document:
 
 ```powershell
-$pList = (([xml](get-content 'somefile.plist')) | &'.\plist reader.ps1')
+. '.\PList Reader.ps1'
+$pList = (([xml](get-content 'somefile.plist')) | ConvertFrom-Plist)
 ```
 
 Note:
