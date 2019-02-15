@@ -5,12 +5,14 @@ function ConvertFrom-Plist {
             Position = 0,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
-            HelpMessage = "XML Plist object.")]
+            HelpMessage = 'XML Plist object.')]
         [ValidateNotNullOrEmpty()]
         [xml]$plist
     )
 
+    # define a class to provide a method for accelerated processing of the XML tree
     class plistreader {
+        # define a static method for accelerated processing of the XML tree
         static [object] processTree ($node) {
             $currnode = $node # start at the first node of the node set provided
             $collection = [ordered]@{}
@@ -27,17 +29,13 @@ function ConvertFrom-Plist {
                         $collection += [ordered]@{ [plistreader]::processTree($currnode.FirstChild) = [plistreader]::processTree($currnode.NextSibling.CloneNode($true)) }
                         $currnode = $currnode.NextSibling # skip the next sibling because it was the value of the property
                     }
-                    elseif ($currnode.Name -eq 'string') {
-                        # for string, or dict; return the value, with possible recursion and collection
-                        return [plistreader]::processTree($currnode.FirstChild)
-                    }
-                    elseif ($currnode.Name -eq 'dict') {
+                    elseif ($currnode.Name -in 'string', 'dict') {
                         # for string, or dict; return the value, with possible recursion and collection
                         return [plistreader]::processTree($currnode.FirstChild)
                     }
                     elseif ($currnode.Name -eq 'array' ) {
                         # for arrays, recurse the tree, and always return the array 
-                        return @($(foreach($sibling in $currnode.ChildNodes) {[plistreader]::processTree($sibling.CloneNode($true))}))
+                        return @(foreach ($sibling in $currnode.ChildNodes) {[plistreader]::processTree($sibling.CloneNode($true))})
                     }
                     elseif ($currnode.Name -eq 'integer') {
                         # must be an integer type value element, return its value
@@ -97,5 +95,5 @@ function ConvertFrom-Plist {
     }
 
     # process the 'plist' item of the input XML object
-    [plistreader]::processTree($plist.item("plist").FirstChild)
+    [plistreader]::processTree($plist.item('plist').FirstChild)
 }
