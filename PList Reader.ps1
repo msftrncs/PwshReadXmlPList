@@ -1,6 +1,25 @@
-# parameter to pass input via pipeline
+<#
+.SYNOPSIS
+    Convert a XML Plist to a PowerShell object
+.DESCRIPTION
+    Converts an XML PList (property list) in to a usable object in PowerShell.
+.EXAMPLE
+    $pList = [xml](get-content 'somefile.plist') | ConvertFrom-Plist
+.INPUTS
+    plist - as an [XML] object containing the PList
+.OUTPUTS
+    [object] - containing the PList as conventional PowerShell object types, hashtables, arrays, strings, numeric values, and byte arrays.
+.NOTES
+    Script / Function / Class assembled by Carl Morris, Morris Softronics, Hooper, NE, USA
+    Initial release - Aug 27, 2018
+.LINK
+    https://github.com/msftrncs/PwshReadXmlPList
+.FUNCTIONALITY
+    data format conversion
+#>
 function ConvertFrom-Plist {
     Param(
+        # parameter to pass input via pipeline
         [Parameter(Mandatory = $true,
             Position = 0,
             ValueFromPipeline = $true,
