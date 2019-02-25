@@ -39,7 +39,7 @@ function ConvertFrom-Plist {
                 follow their key, not contained within them. #>
                 if ($node.HasChildNodes) {
                     switch ($node.Name) {
-                        'dict' {
+                        dict {
                             # for dictionary, return the subtree as a hashtable, with possible recursion of additional arrays or dictionaries
                             $collection = [ordered]@{}
                             $currnode = $node.FirstChild # start at the first child node of the dictionary
@@ -61,15 +61,15 @@ function ConvertFrom-Plist {
                             # return the collected hash table
                             $collection
                         }
-                        'array' {
+                        array {
                             # for arrays, recurse each node in the subtree, returning an array (forced)
                             , @(foreach ($sibling in $node.ChildNodes) {[plistreader]::processTree($sibling)})
                         }
-                        'string' {
+                        string {
                             # for string, return the value, with possible recursion and collection
                             [plistreader]::processTree($node.FirstChild)
                         }
-                        'integer' {
+                        integer {
                             # must be an integer type value element, return its value
                             [plistreader]::processTree($node.FirstChild) | ForEach-Object {
                                 # try to determine what size of interger to return this value as
@@ -89,15 +89,15 @@ function ConvertFrom-Plist {
                                 }
                             }
                         }
-                        'real' {
+                        real {
                             # must be a floating type value element, return its value
                             [plistreader]::processTree($node.FirstChild) -as [double]
                         }
-                        'date' {
+                        date {
                             # must be a date-time type value element, return its value
                             [plistreader]::processTree($node.FirstChild) -as [datetime]
                         }
-                        'data' {
+                        data {
                             # must be a data block value element, return its value as [byte[]]
                             [convert]::FromBase64String([plistreader]::processTree($node.FirstChild))
                         }
@@ -110,8 +110,8 @@ function ConvertFrom-Plist {
                 else {
                     # return simple element value (need to check for Boolean datatype, and process value accordingly)
                     switch ($node.Name) {
-                        'true' {$true} # return a Boolean TRUE value
-                        'false' {$false} # return a Boolean FALSE value
+                        true {$true} # return a Boolean TRUE value
+                        false {$false} # return a Boolean FALSE value
                         default {$node.Value} # return the element value
                     }
                 }
