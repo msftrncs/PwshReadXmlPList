@@ -47,7 +47,7 @@ function ConvertFrom-Plist {
                                 if ($currnode.Name -eq 'key') {
                                     # a key in a dictionary, add it to a collection
                                     if ($null -ne $currnode.NextSibling) {
-                                        $collection += [ordered]@{ [plistreader]::processTree($currnode.FirstChild) = [plistreader]::processTree($currnode.NextSibling) }
+                                        $collection.Add([plistreader]::processTree($currnode.FirstChild), [plistreader]::processTree($currnode.NextSibling))
                                         $currnode = $currnode.NextSibling.NextSibling # skip the next sibling because it was the value of the property
                                     }
                                     else {
@@ -60,14 +60,17 @@ function ConvertFrom-Plist {
                             }
                             # return the collected hash table
                             $collection
+                            continue
                         }
                         array {
                             # for arrays, recurse each node in the subtree, returning an array (forced)
                             , @(foreach ($sibling in $node.ChildNodes) {[plistreader]::processTree($sibling)})
+                            continue
                         }
                         string {
                             # for string, return the value, with possible recursion and collection
                             [plistreader]::processTree($node.FirstChild)
+                            continue
                         }
                         integer {
                             # must be an integer type value element, return its value
@@ -88,30 +91,34 @@ function ConvertFrom-Plist {
                                     }
                                 }
                             }
+                            continue
                         }
                         real {
                             # must be a floating type value element, return its value
                             [plistreader]::processTree($node.FirstChild) -as [double]
+                            continue
                         }
                         date {
                             # must be a date-time type value element, return its value
                             [plistreader]::processTree($node.FirstChild) -as [datetime]
+                            continue
                         }
                         data {
                             # must be a data block value element, return its value as [byte[]]
                             [convert]::FromBase64String([plistreader]::processTree($node.FirstChild))
+                            continue
                         }
                         default {
                             # we didn't recognize the element type!
-                            throw "Unhandled PLIST container type <$($node.Name)>!"
+                            throw "Unhandled PLIST property type <$($node.Name)>!"
                         }
                     }
                 }
                 else {
                     # return simple element value (need to check for Boolean datatype, and process value accordingly)
                     switch ($node.Name) {
-                        true {$true} # return a Boolean TRUE value
-                        false {$false} # return a Boolean FALSE value
+                        true {$true; continue} # return a Boolean TRUE value
+                        false {$false; continue} # return a Boolean FALSE value
                         default {$node.Value} # return the element value
                     }
                 }
