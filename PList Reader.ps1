@@ -47,7 +47,7 @@ function ConvertFrom-Plist {
                                 if ($currnode.Name -eq 'key') {
                                     # a key in a dictionary, add it to a collection
                                     if ($null -ne $currnode.NextSibling) {
-                                        $collection.Add([plistreader]::processTree($currnode.FirstChild), [plistreader]::processTree($currnode.NextSibling))
+                                        $collection[[plistreader]::processTree($currnode.FirstChild)] = [plistreader]::processTree($currnode.NextSibling)
                                         $currnode = $currnode.NextSibling.NextSibling # skip the next sibling because it was the value of the property
                                     }
                                     else {
