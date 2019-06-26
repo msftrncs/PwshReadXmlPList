@@ -52,12 +52,10 @@ function ConvertFrom-Plist {
                                         # note: keys are forced to [string], insures a $null key is accepted
                                         $collection[[string][plistreader]::processTree($currnode.FirstChild)] = [plistreader]::processTree($currnode.NextSibling)
                                         $currnode = $currnode.NextSibling.NextSibling # skip the next sibling because it was the value of the property
-                                    }
-                                    else {
+                                    } else {
                                         throw "Dictionary property value missing!"
                                     }
-                                }
-                                else {
+                                } else {
                                     throw "Non 'key' element found in dictionary: <$($currnode.Name)>!"
                                 }
                             }
@@ -79,15 +77,13 @@ function ConvertFrom-Plist {
                             # must be an integer type value element, return its value
                             [plistreader]::processTree($node.FirstChild).foreach{
                                 # try to determine what size of interger to return this value as
-                                if ([int]::TryParse( $_, [ref]$null)) {
+                                if ([int]::TryParse($_, [ref]$null)) {
                                     # a 32bit integer seems to work
                                     $_ -as [int]
-                                }
-                                elseif ([int64]::TryParse( $_, [ref]$null)) {
+                                } elseif ([int64]::TryParse($_, [ref]$null)) {
                                     # a 64bit integer seems to be needed
                                     $_ -as [int64]
-                                }
-                                else {
+                                } else {
                                     # try an unsigned 64bit interger, the largest available here.
                                     $_ -as [uint64]
                                 }
@@ -114,8 +110,7 @@ function ConvertFrom-Plist {
                             throw "Unhandled PLIST property type <$($node.Name)>!"
                         }
                     }
-                }
-                else {
+                } else {
                     # return simple element value (need to check for Boolean datatype, and process value accordingly)
                     switch ($node.Name) {
                         true { $true; continue } # return a Boolean TRUE value
