@@ -16,6 +16,7 @@
 .NOTES
     Script / Function / Class assembled by Carl Morris, Morris Softronics, Hooper, NE, USA
     Initial release - Aug 27, 2018
+    Jan 16, 2021 - Corrected return type of <DATA> tags.
 .LINK
     https://github.com/msftrncs/PwshReadXmlPList
 .FUNCTIONALITY
@@ -102,7 +103,7 @@ function ConvertFrom-Plist {
                         }
                         data {
                             # must be a data block value element, return its value as [byte[]]
-                            [convert]::FromBase64String([plistreader]::processTree($node.FirstChild))
+                            , [convert]::FromBase64String([plistreader]::processTree($node.FirstChild))
                             continue
                         }
                         default {
