@@ -1,17 +1,32 @@
 # PwshReadXmlPList
 
-PowerShell function to process an XML PList file in to a meaningful object.  The entire PList will be a single custom object, which can then be further manipulated within PowerShell.
+PwshReadXmlPList is a project to process an XML PList document into a usable PowerShell object.  The resulting object will depend on the PList document, but will commonly be composed of ordered dictionaries and/or arrays of common (basic) value types or further dictionaries or arrays.
 
-Within it is a fairly complete XML PList reading function.  The XML PList is a poorly constructed XML document, due to its &lt;dict&gt; items not being individually stored in separate 'property' child nodes.
+An XML PList is a somewhat challenging document to process due to a lack of wrapping each dictionary (`<dict>`) item's key (`<key>`) and value in a separate node tree, requiring sequential sibling node processing.
 
-The script presently accepts input of an XML object which it can accept from the pipeline.  Use the \[xml\] shortcut to read the document:
+## ConvertFrom-Plist
 
+The project provides one function, `ConvertFrom-Plist` to process an XML PList document as a pipeline input.  You use typical PowerShell processes to read in the XML content of the PList, whether from a file or other sources, using the `[xml]` shortcut to convert the content to an XML object if not already sourced as such, prior to piping to `ConvertFrom-Plist`.
+
+### Parameters
+- plist (`-plist`)
+
+  The parameter `-plist` may be used in place of pipeline input.
+
+### Examples
+
+Example uses:
 ```powershell
-. '.\PList Reader.ps1'
-$pList = [xml](get-content 'somefile.plist') | ConvertFrom-Plist
-$grammar_plist = [xml](Get-Content PowerShellSyntax.tmLanguage) | ConvertFrom-Plist
+. '.\PList Reader.ps1' # import the ConvertFrom-Plist function to the current session
+$pList = ConvertFrom-Plist -plist ([xml](Get-Content 'somefile.plist')) # read 'somefile.plist' file and convert the result to $pList
+$grammar_plist = [xml](Get-Content PowerShellSyntax.tmLanguage) | ConvertFrom-Plist # read the PowerShell TextMate syntax grammar description file and convert the result to $grammar_plist
 ```
 
-Note:
-- This function was initially developed to aid in processing TextMate tmLanguage grammar files.
-- There is a possibility that not all PLIST documents can be handled at this time.  `<key>` is not currently handled at the root level.
+### Handling of `<data>`
+
+ConvertFrom-Plist handles PList `<data>` objects by preparing them into byte array (`[byte[]]`) objects.  The data that is encoded in the byte arrays depends on the application that generated the PList document.  You may need to provide further processing for these objects.
+
+### Notes
+- PowerShell scripting knowledge is required.
+- This project was initially created to aid in processing TextMate tmLanguage grammar files, primarily for conversion to other formats, such as JSON.
+- `<key>` is not currently handled at the root level, but this appears to be compliant with the XML PList DTD.
