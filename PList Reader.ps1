@@ -17,6 +17,7 @@
     Script / Function / Class assembled by Carl Morris, Morris Softronics, Hooper, NE, USA
     Initial release - Aug 27, 2018
     Jan 16, 2021 - Corrected return type of <DATA> tags.
+    Sep 19, 2021 - Corrected reaction to empty <DICT>, <ARRAY>, <STRING>, and <DATA> tags.
 .LINK
     https://github.com/msftrncs/PwshReadXmlPList
 .FUNCTIONALITY
@@ -112,10 +113,14 @@ function ConvertFrom-Plist {
                         }
                     }
                 } else {
-                    # return simple element value (need to check for Boolean datatype, and process value accordingly)
+                    # some nodes are empty, such as Boolean, others are empty because they have no content (null)
                     switch ($node.Name) {
                         true { $true; continue } # return a Boolean TRUE value
                         false { $false; continue } # return a Boolean FALSE value
+                        dict { [ordered]@{}; continue } # return an empty dictionary
+                        array { , @(); continue } # return an empty array
+                        string { [string]''; continue } # return an empty string
+                        data { , [byte[]]@(); continue } # return an empty byte array ([byte[]])
                         default { $node.Value } # return the element value
                     }
                 }
